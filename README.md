@@ -79,3 +79,66 @@ I repeated the steps above 4 more times on each regions data to get the answer f
 ![image](https://user-images.githubusercontent.com/20977403/42422945-af69918e-82be-11e8-924a-eca89f1f1ee6.png)
 
 In all of the graphs above, it would appear that around 1989 video games were at their peak.  Generally, most of the regions aw a decline in the volume of video game sales except for Other Countries and the European Union.  Both of those regions seem to still be rising as time does on signifying that video games are still growing in popularity around those regions. Globally, video game sales have remained fairly constant since the 2000’s.
+
+## Question 3:
+
+### Question: Does the ESRB rating of a game affect the sales in each region provided in the dataset NA, Japan, Europe, Other, Global)? 
+
+#### Method:
+To answer this question, I first had to come up with a Null and Alternate hypothesis.  
+
+Ho: The ESRB rating does not affect the unit sales of the game
+Ha: The ESRB rating does affect the unit sales of the game
+
+With that done, I needed to then start setting up my data frames and see if I need to clean the columns before proceeding.  When I ran a count on a groupby of the `Rating` column, I found that there were 4 Ratings that had less than 10 games contained from the data set.  I removed these by creating a new data frame `rating_df` which contained only the ESRB ratings with more than 10 games each.  The remaining were ESRB ratings of E, E10+, T, and M.  After creating a dataframe of only the ratings I needed, I then created a data frame for each ESRB rating for an ANOVA test at each stage.
+
+For each region, I followed the same steps:
+1.	Create a factorplot using seaborn ploting that regions sales on the y-axis and the rating on the x-axis.  
+2.	I then ran an ANOVA test using the f_oneway() function from scipy’s stats package.
+    * a.	For each of the calculations, I dropped the `na` values before calculating the f_oneway statistic.
+![image](https://user-images.githubusercontent.com/20977403/42423002-4d9b65c0-82c0-11e8-8404-60f5cf4ef114.png)
+
+3.	Repeated the above steps for each region.
+
+#### Results:
+Unsurprisingly, I found that most of the regions rejected the Ho stating that the ESRB rating does not have an effect on unit sales of the game in the region.  Each of the p-values when running the ANOVA test were well below the alpha selected.  Japan, however, did not show those same results.  I found that with an alpha = 0.01, we would fail to reject the null hypothesis that the ESRB rating does affect the unit sales of a game in Japan.  When running the ANOVA test on the different Rating specific data frames, we receive a p-value of 0.014270083344292479 which is higher than the set alpha.
+
+**Japan:**
+![image](https://user-images.githubusercontent.com/20977403/42423008-8fff2118-82c0-11e8-91c8-03cc34538b20.png)
+
+## Question 4:
+
+### Question: What is the most popular gaming platform for critically acclaimed games? User rated games?
+
+#### Method:
+For this question, I had to create two data frames with a groupby() and agg() function.  The first was using the `master` data frame and using a groupby() on the Platform with as_index = False to keep the index column.  After, I used an agg(“mean”) function to get the mean and dropped all `na` values.  Finally, I sorted this data frame by the critic score in descending order.  I used a similar method as illustrated above for the second data frame containing information on the user scores.
+
+To construct the complete visualization at the end, I had to do a bit of additional manipulation of the data frame.  First, I had to merge the two created above on the `Platform`.  After, I had to figure out a way to make it so that the source of the score became a categorical variable that I could separate the data by when plotting the result.  The solution I came up with was using a pd.melt() using the `Platform` as the ID, the var_name became `ScoreSource` and the ‘value_name’ became the values.  This resulting data frame gave me two entries for each platform, a categorical variable for the kind of score, and what the value of the score was.  This enabled me to utilize seaborn’s barplot and set the `hue` to the ScoreSource giving me a side-by-side bar chart for each of the Platforms and how their average critic score and user score differ.
+
+#### Results:
+When using a .head() on both data frames for user score and critic score (grouped by the Platform), We see that the platform that has the highest average critic score for its games is the PC and the platform with the highest average user score for its games is the PS or PlayStation.  Below are the top 5 from each sorted data frame.  When diving deeper in to these platforms I found that the top game for PC from a critic’s stand point is Grand Theft Auto V and the top game from a user’s stand point is Castlevania: Symphony of the Night.
+
+![image](https://user-images.githubusercontent.com/20977403/42423038-45b98750-82c1-11e8-8ea7-d43e67a19a7a.png)
+![image](https://user-images.githubusercontent.com/20977403/42423040-4ce55108-82c1-11e8-86aa-3cab687beb0f.png)
+
+The plot below shows the average critic score and user score for each platform.  It is sorted in descending order based on the critic score to give some structure.  The User score is encoded as BLUE and the Critic Score is encoded as ORANGE. It’s interesting to see that the Xbox One (XOne) has one of the highest critic scores, however the average user score of their games is the lowest values out of all of the platforms. The Game Boy Advance (GBA) is another interesting find that has the second highest average user rating for all games yet has a much lower average critic rating.
+
+![image](https://user-images.githubusercontent.com/20977403/42423045-5a621708-82c1-11e8-89f1-1e9a3ba31184.png)
+
+## Question 5:
+
+### Question: What is the most popular video game genre based off number of copies sold in each nation available in the dataset (NA, Japan, Europe, Other, Global)?
+
+#### Method:
+For this I created a data frame from the cleaned `master` data frame grouped by the “Genre” and aggregated off the sum over the years in each region’s sales.  I dropped all `na` values in this step.  I then used a pd.merge on each of the five individual data frames to build one overall data frame.  I then used a simple .plot(kind=”bar”, x=”genre”) to visualize as this question was just out of curiosity from the data set.
+
+#### Results:
+![image](https://user-images.githubusercontent.com/20977403/42423057-97586856-82c1-11e8-9a63-27cafb064aa8.png)
+
+**NA:** Action
+**Japan:** Role-Playing
+**EU:** Action
+**Other:** Action
+**Global:** Action
+
+Japan was not only the only region that saw the most sold genre of games total, but also was the only country that beat North American unit sales by genre both of which were Role-Playing games.
